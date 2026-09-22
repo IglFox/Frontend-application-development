@@ -49,14 +49,12 @@ public class Main {
             count++;
         }
 
-        IO.println("\nПодходят детям 5 лет:");
+        IO.println("\nПодходят детям возраста 4 года:");
         count = 1;
-        for (var toy : room.getToys()) {
-            IO.print(count + ". ");
-            IO.println(toy);
+        for (var toy : room.findByAgeRange(4)) {
+            System.out.print(count + ". ");
+            System.out.println(toy);
             count++;
         }
     }
 }
-
-
