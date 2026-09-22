@@ -48,4 +48,16 @@ public abstract class Toy {
                         getPrice()
                 );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Toy other = (Toy) obj;
+        return price == other.price && minAge == other.minAge && maxAge == other.maxAge && name.equals(other.name);
+    }
 }

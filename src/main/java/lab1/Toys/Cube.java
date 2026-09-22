@@ -1,48 +1,29 @@
 package lab1.Toys;
 
-public class Cube extends Toy implements Sized {
-    private final ToySize size;
+public class Cube extends SizedToy {
 
     public Cube(String name, int price, int minAge, int maxAge, ToySize size) {
-        super(name, Sized.calculatePrice(price, size), minAge, maxAge);
-        this.size = size;
+        super(name, price, minAge, maxAge, size);
     }
 
     public Cube(String name, int price, int minAge, int maxAge) {
-        super(name, Sized.calculatePrice(price, ToySize.MEDIUM), minAge, maxAge);
-        this.size = ToySize.MEDIUM;
+        super(name, price, minAge, maxAge, ToySize.MEDIUM);
     }
 
     public Cube(int price, int minAge, int maxAge) {
-        super("Кубик", Sized.calculatePrice(price, ToySize.MEDIUM), minAge, maxAge);
-        this.size = ToySize.MEDIUM;
+        super("Кубик", price, minAge, maxAge, ToySize.MEDIUM);
     }
 
     public Cube(int price) {
-        super("Кубик", Sized.calculatePrice(price, ToySize.MEDIUM), 0, 4);
-        this.size = ToySize.MEDIUM;
-    }
-
-    @Override
-    public void setPrice(int price) {
-        if (size == null) {
-            super.setPrice(price);
-        } else {
-            super.setPrice(Sized.calculatePrice(price, size));
-        }
-    }
-
-    @Override
-    public ToySize getSize() {
-        return size;
+        super("Кубик", price, 0, 4, ToySize.MEDIUM);
     }
 
     @Override
     public String toString() {
         return "%s: размер: %s, цена: %d руб.".formatted(
-                        getName(),
-                        getSize(),
-                        getPrice()
-                );
+                getName(),
+                getSize(),
+                getPrice()
+        );
     }
 }

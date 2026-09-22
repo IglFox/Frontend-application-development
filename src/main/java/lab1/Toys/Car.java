@@ -1,40 +1,21 @@
 package lab1.Toys;
 
-public class Car extends Toy implements Sized {
-    private final ToySize size;
+public class Car extends SizedToy {
 
     public Car(String name, int price, int minAge, int maxAge, ToySize size) {
-        super(name, Sized.calculatePrice(price, size), minAge, maxAge);
-        this.size = size;
+        super(name, price, minAge, maxAge, size);
     }
 
     public Car(String name, int price, int minAge, int maxAge) {
-        super(name, price, minAge, maxAge);
-        this.size = ToySize.SMALL;
+        super(name, price, minAge, maxAge, ToySize.SMALL);
     }
 
     public Car(int price, int minAge, int maxAge) {
-        super("Машинка", price, minAge, maxAge);
-        this.size = ToySize.SMALL;
+        super("Машинка", price, minAge, maxAge, ToySize.SMALL);
     }
 
     public Car(int price) {
-        super("Машинка", price, 2, 7);
-        this.size = ToySize.SMALL;
-    }
-
-    @Override
-    public ToySize getSize() {
-        return size;
-    }
-
-    @Override
-    public void setPrice(int price) {
-        if (size == null) {
-            super.setPrice(price);
-        } else {
-            super.setPrice(Sized.calculatePrice(price, size));
-        }
+        super("Машинка", price, 2, 7, ToySize.SMALL);
     }
 
     @Override
@@ -45,5 +26,4 @@ public class Car extends Toy implements Sized {
                 getPrice()
         );
     }
-
 }
