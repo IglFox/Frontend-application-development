@@ -42,7 +42,7 @@ public class GameRoom {
         toys.sort(Comparator.comparingInt(Toy::getPrice));
     }
 
-    public ArrayList<Toy> findByAgeRange(int Age) {
+    public ArrayList<Toy> findByAge(int Age) {
         ArrayList<Toy> resultArray = new ArrayList<Toy>();
         for (Toy toy: toys) {
             if (toy.isSuit(Age)) {
