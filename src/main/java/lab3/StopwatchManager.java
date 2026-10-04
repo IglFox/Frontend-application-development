@@ -12,140 +12,120 @@ package lab3;
 
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class StopwatchManager {
-    final private String HELP_TXT = "Команды:\n" +
-            "- start N – запустить секундомер и дать ему идентификатор N;\n" +
-            "- stop N – остановить секундомер с идентификатором N;\n" +
-            "- reset N – сбросить время у секундомера с идентификатором N;\n" +
-            "- time N – показать время у секундомера с идентификатором N;\n" +
-            "- help – список команд;\n" +
-            "- timers - список секундомеров\n" +
-            "- exit – выход.";
+    private static final String HELP_TXT = """
+            Команды:
+            - start N  – запустить секундомер с идентификатором N;
+            - stop N   – остановить секундомер с идентификатором N;
+            - reset N  – сбросить время секундомера с идентификатором N;
+            - time N   – показать время секундомера с идентификатором N;
+            - timers   – список всех секундомеров;
+            - help     – список команд;
+            - exit     – выход.
+            """;
 
-    private HashMap<Integer, Stopwatch> instances = new HashMap<>();
+    private final Map<Integer, Stopwatch> instances = new HashMap<>();
 
-    public void getInstances() {
-        instances.forEach(
-            (id, stopwatch) -> {
-                IO.println("- Секундомер[ID:%d]: %dms".formatted(id, stopwatch.getTime()));
-        });
+    public void showTimers() {
+        if (instances.isEmpty()) {
+            IO.println("Список секундомеров пуст.");
+            return;
+        }
+        instances.forEach((id, sw) ->
+            IO.println("- Секундомер [ID:%d]: %d ms".formatted(id, sw.getTime()))
+        );
     }
 
     public void start() {
         IO.println(HELP_TXT);
 
-        String input_raw, input_command;
-
-        do {
-            int input_digit = -1;
-            input_raw = IO.readln("-> ");
-            String[] input_array = input_raw.trim().split(" ");
-            try {
-                input_digit = Integer.parseInt(input_array[1]);
-            } catch (ArrayIndexOutOfBoundsException | NumberFormatException _) {
-
-            } finally {
-                input_command = input_array[0];
-                command_route(input_command, input_digit);
+        while (true) {
+            String rawLine = IO.readln("-> ");
+            if (rawLine == null) {
+                break;
             }
-        } while (!input_raw.equals("exit"));
 
+            String trimmed = rawLine.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+
+            String[] parts = trimmed.split(" ");
+            String command = parts[0].toLowerCase();
+
+            if (command.equals("exit")) {
+                shutdownAll();
+                break;
+            }
+
+            executeCommand(command, parts);
+        }
     }
 
-    private void command_route(String command, int N) {
-        if ( instances.isEmpty() && "stoptimersreset".contains(command)) {
-            IO.println(
-                "Пока что нет активных секундомеров."
-            );
+    private void executeCommand(String command, String[] parts) {
+        switch (command) {
+            case "help" -> IO.println(HELP_TXT);
+            case "timers" -> showTimers();
+            case "start", "stop", "reset", "time" -> handleTargetedCommand(command, parts);
+            default -> IO.println("Неизвестная команда. Введите 'help' для справки.");
+        }
+    }
+
+    private void handleTargetedCommand(String command, String[] parts) {
+        if (parts.length < 2) {
+            IO.println("Ошибка: не указан идентификатор секундомера (N). Пример: " + command + " 1");
             return;
-        } else if ( N == -1 && "stoptimeresetstart".contains(command) ) {
-            IO.println(
-                "Правильно укажите номер секундомера в виде целового числа."
-            );
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            IO.println("Ошибка: идентификатор секундомера должен быть целым числом.");
             return;
         }
 
         switch (command) {
             case "start" -> {
-                if (instances.containsKey(N)) {
-                    IO.println(
-                        "Секундомер с ID:%d уже создан. Текущее время: %dms.".formatted(
-                            N, instances.get(N).getTime()
-                        )
-                    );
-                } else {
-                    Stopwatch sw = new Stopwatch();
-                    sw.startTimer();
-                    instances.put(N, sw);
-                    IO.println("Секундомер с ID:%d создан.".formatted(N));
-                }
+                Stopwatch sw = instances.computeIfAbsent(id, k -> new Stopwatch());
+                sw.start();
+                IO.println("Секундомер [ID:%d] запущен. Время: %d ms.".formatted(id, sw.getTime()));
             }
-
             case "stop" -> {
-                if (instances.containsKey(N)) {
-                    instances.get(N).stopTimer();
-                    IO.println(
-                        "Секундомер с ID:%d остановлен. Прошло времени: %dms.".formatted(
-                                N, instances.get(N).getTime()
-                        )
-                    );
-                    instances.remove(N);
+                Stopwatch sw = instances.get(id);
+                if (sw == null) {
+                    IO.println("Секундомер с ID:%d не найден.".formatted(id));
                 } else {
-                    IO.println(
-                        "Секундомера с ID:%d не существует.".formatted(
-                            N
-                        )
-                    );
+                    sw.stop();
+                    IO.println("Секундомер [ID:%d] остановлен. Итоговое время: %d ms.".formatted(id, sw.getTime()));
                 }
             }
-
             case "reset" -> {
-                if (instances.containsKey(N)) {
-                    instances.get(N).resetTimer();
-                    IO.println(
-                        "Секундомер с ID:%d перезапущен.".formatted(
-                            N
-                        )
-                    );
+                Stopwatch sw = instances.get(id);
+                if (sw == null) {
+                    IO.println("Секундомер с ID:%d не найден.".formatted(id));
                 } else {
-                    IO.println(
-                            "Секундомера с ID:%d не существует.".formatted(
-                                    N
-                            )
-                    );
+                    sw.reset();
+                    IO.println("Секундомер [ID:%d] сброшен.".formatted(id));
                 }
             }
-
             case "time" -> {
-                if (instances.containsKey(N)) {
-                    IO.println(
-                            "Секундомер[ID:%d]: %dms.".formatted(
-                                    N, instances.get(N).getTime()
-                            )
-                    );
+                Stopwatch sw = instances.get(id);
+                if (sw == null) {
+                    IO.println("Секундомер с ID:%d не найден.".formatted(id));
                 } else {
-                    IO.println(
-                        "Секундомера с ID:%d не существует.".formatted(
-                                N
-                        )
-                    );
+                    IO.println("Секундомер [ID:%d]: %d ms.".formatted(id, sw.getTime()));
                 }
-            }
-
-            case "help", " " -> {
-                IO.println(HELP_TXT);
-            }
-
-            case "exit" -> {
-                System.exit(0);
-            }
-
-            case "timers" -> {
-                getInstances();
             }
         }
     }
+
+    private void shutdownAll() {
+        for (Stopwatch sw : instances.values()) {
+            sw.stop();
+        }
+        instances.clear();
+    }
 }
-
-

@@ -10,54 +10,51 @@ package lab3;
 Для демонстрации работы секундомера написать консольное приложение.
  */
 
-
-
-public class Stopwatch extends Thread {
-    private boolean active = false;
-    private long startTime = 0L;
-    private long elapsedTime = 0L;
+public class Stopwatch implements Runnable {
+    private volatile boolean running = false;
+    private volatile long elapsedTime = 0L;
+    private Thread workerThread;
 
     @Override
     public void run() {
-        while (active) {
+        long lastTime = System.currentTimeMillis();
+        while (running) {
             try {
                 Thread.sleep(50);
+                long now = System.currentTimeMillis();
+                elapsedTime += (now - lastTime);
+                lastTime = now;
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 break;
             }
         }
     }
 
-    public synchronized void startTimer() {
-        if (!active) {
-            active = true;
-            startTime = System.currentTimeMillis();
+    public synchronized void start() {
+        if (!running) {
+            running = true;
+            workerThread = new Thread(this);
+            workerThread.setDaemon(true);
+            workerThread.start();
+        }
+    }
 
-            if (getState() == State.NEW) {
-                super.start();
-            } else {
-                new Thread(this::run).start();
+    public synchronized void stop() {
+        if (running) {
+            running = false;
+            if (workerThread != null) {
+                workerThread.interrupt();
             }
         }
     }
 
-    public synchronized void stopTimer() {
-        if (active) {
-            elapsedTime += System.currentTimeMillis() - startTime;
-            active = false;
-        }
-    }
-
-    public synchronized void resetTimer() {
-        active = false;
-        startTime = 0L;
+    public synchronized void reset() {
+        stop();
         elapsedTime = 0L;
     }
 
-    public synchronized long getTime() {
-        if (active) {
-            return elapsedTime + (System.currentTimeMillis() - startTime);
-        }
+    public long getTime() {
         return elapsedTime;
     }
 }
