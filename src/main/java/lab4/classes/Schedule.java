@@ -1,41 +1,44 @@
 package lab4.classes;
 
-
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Schedule implements Serializable {
-    private String groupName;
-    private ArrayList<Lesson> lessons;
+    private static final long serialVersionUID = 1L;
 
-    public ArrayList<Lesson> getLessons() {
-        return lessons;
-    }
+    private final String groupName;
+    private final ArrayList<Lesson> lessons = new ArrayList<>();
 
-    public void setLessons(ArrayList<Lesson> lessons) {
-        this.lessons = lessons;
+    public Schedule(String groupName) {
+        this.groupName = groupName;
     }
 
     public String getGroupName() {
         return groupName;
     }
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
+    public List<Lesson> getLessons() {
+        return lessons;
+    }
+
+    public void addLesson(Lesson lesson) {
+        lessons.add(lesson);
+    }
+
+    public boolean removeLessonById(int id) {
+        return lessons.removeIf(l -> l.getId() == id);
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Группа: %s | Всего предметов: %d |\n".formatted(groupName, lessons.size()));
-        for (Lesson lesson: lessons) {
-            sb.append(lesson.toString());
+        if (lessons.isEmpty()) {
+            return "Группа " + groupName + ": занятий нет.";
+        }
+        StringBuilder sb = new StringBuilder("Расписание группы ").append(groupName).append(":\n");
+        for (Lesson lesson : lessons) {
+            sb.append("  ").append(lesson).append("\n");
         }
         return sb.toString();
     }
-
 }
-
-
-
-
