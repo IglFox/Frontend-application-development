@@ -42,3 +42,9 @@ build/
 ### local files ###
 files
 out
+.env
+*.
+*.docx
+*.odt
+other/
+__pycache__
