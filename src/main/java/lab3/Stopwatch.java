@@ -38,6 +38,7 @@ public class Stopwatch implements Runnable {
             workerThread.setDaemon(true);
             workerThread.start();
         }
+
     }
 
     public synchronized void stop() {

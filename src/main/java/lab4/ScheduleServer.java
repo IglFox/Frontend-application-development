@@ -53,6 +53,7 @@ public class ScheduleServer {
         ) {
             String line;
             while ((line = in.readLine()) != null) {
+                System.out.println("клиент: " + line);
                 String response = processCommand(line.trim());
                 out.println(response);
                 out.println("---END---");
